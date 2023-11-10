@@ -14,7 +14,7 @@ const app = (0, express_1.default)();
 // Define the allowed origins
 const allowedOrigins = [config_1.default.frontend_url, 'http://localhost:3000'];
 const corsOptions = {
-    origin: allowedOrigins,
+    origin: "https://online-work-platform-client.vercel.app",
     credentials: true, //access-control-allow-credentials:true
 };
 app.use((0, cors_1.default)(corsOptions));
