@@ -13,7 +13,7 @@ const app: Application = express();
 const allowedOrigins = [config.frontend_url, 'http://localhost:3000'];
 
 const corsOptions = {
-  origin: "https://online-work-platform-client.vercel.app",
+  origin: "https://online-work-platform.vercel.app",
   credentials: true, //access-control-allow-credentials:true
 };
 app.use(cors(corsOptions));
