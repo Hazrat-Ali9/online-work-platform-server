@@ -1,0 +1,201 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                  String        @id @default(uuid())
+  email               String
+  role                String
+  password            String
+  needsPasswordChange Boolean       @default(false)
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  seller              Seller?
+  buyer               Buyer?
+  admin               Admin?
+  testimonial         Testimonial[]
+
+  @@map("user")
+}
+
+model Seller {
+  id               String      @id @default(uuid())
+  name             String
+  email            String
+  avatarUrl        String?
+  dateOfBirth      DateTime?
+  gender           Gender?     @default(MALE)
+  contactNo        String?
+  presentAddress   String?
+  permanentAddress String?
+  occupation       String?
+  bloodGroup       String?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  userId           String      @unique
+  user             User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderItems       OrderItem[]
+
+  @@map("seller")
+}
+
+model Admin {
+  id               String    @id @default(uuid())
+  name             String
+  email            String
+  avatarUrl        String?
+  dateOfBirth      DateTime?
+  gender           Gender    @default(MALE)
+  contactNo        String?
+  presentAddress   String?
+  permanentAddress String?
+  occupation       String?
+  designation      String?
+  bloodGroup       String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  userId           String    @unique
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("admin")
+}
+
+model Buyer {
+  id               String            @id @default(uuid())
+  name             String
+  email            String
+  avatarUrl        String?
+  dateOfBirth      DateTime?
+  gender           Gender?
+  contactNo        String?
+  presentAddress   String?
+  permanentAddress String?
+  occupation       String?
+  bloodGroup       String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  userId           String            @unique
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deliveryAddress  DeliveryAddress[]
+  taskReviews      TaskReview[]
+  Order            Order[]
+
+  @@map("buyer")
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  tasks     Task[]
+
+  @@map("categories")
+}
+
+model TaskReview {
+  id      String @id @default(uuid())
+  rating  Int
+  comment String
+  buyerId String
+  buyer   Buyer  @relation(fields: [buyerId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id])
+
+  @@map("task_review")
+}
+
+model Task {
+  id          String       @id @default(uuid())
+  title       String
+  imageUrl    String
+  sellerId    String
+  price       String
+  description String
+  categoryId  String
+  category    Category     @relation(fields: [categoryId], references: [id])
+  address     String
+  taskReviews TaskReview[]
+
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  OrderItem OrderItem[]
+
+  @@map("task")
+}
+
+model Order {
+  id         String      @id @default(uuid())
+  buyerId    String
+  buyer      Buyer       @relation(fields: [buyerId], references: [id])
+  status     String      @default("pending")
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  orderItems OrderItem[]
+
+  @@map("order")
+}
+
+model OrderItem {
+  id      String @id @default(uuid())
+  orderId String
+  orders  Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  taskId String
+  tasks  Task   @relation(fields: [taskId], references: [id])
+
+  quantity Int
+  price    Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  sellerId  String?
+  seller    Seller?  @relation(fields: [sellerId], references: [id])
+
+  @@map("order_item")
+}
+
+model DeliveryAddress {
+  id              String @id @default(uuid())
+  name            String
+  phoneNumber     String
+  street          String
+  houseNumber     String
+  apartmentNumber String
+  roomNumber      String
+  buyerId         String
+  buyer           Buyer  @relation(fields: [buyerId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("delivery_address")
+}
+
+model Testimonial {
+  id          String @id @default(uuid())
+  status      String @default("pending")
+  description String
+  userId      String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
